@@ -368,8 +368,13 @@ renderCUDA(
 	{
 		final_T[pix_id] = T;
 		n_contrib[pix_id] = last_contributor;
+
+		// In contrast to the original implementation, we do not add the bg_color.
 		for (int ch = 0; ch < CHANNELS; ch++)
-			out_color[ch * H * W + pix_id] = C[ch] + T * bg_color[ch];
+			out_color[ch * H * W + pix_id] = C[ch];
+
+		// Write out the alpha channel.
+		out_color[3 * H * W + pix_id] = 1.0 - T;
 	}
 }
 
