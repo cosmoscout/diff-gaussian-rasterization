@@ -38,6 +38,12 @@ __device__ const float SH_C3[] = {
 	-0.5900435899266435f
 };
 
+__forceinline__ __device__ float smoothstep(float a, float b, float x)
+{
+	float y = max(0.0, min(1.0, (x - a) / (b - a)));
+	return (y*y*(3.0f - (2.0f*y)));
+}
+
 __forceinline__ __device__ float ndc2Pix(float v, int S)
 {
 	return ((v + 1.0) * S - 1.0) * 0.5;
