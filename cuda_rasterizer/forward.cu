@@ -177,7 +177,8 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	float4* conic_opacity,
 	const dim3 grid,
 	uint32_t* tiles_touched,
-	bool prefiltered)
+	bool prefiltered,
+	bool do_fade)
 {
 	auto idx = cg::this_grid().thread_rank();
 	if (idx >= P)
@@ -233,7 +234,7 @@ __global__ void preprocessCUDA(int P, int D, int M,
 
 	// This was added for CosmoScout VR: We smoothly fade out small splats
 	// in order to significantly increase the performance for views from outside.
-	float alpha_fade = smoothstep(3.0, 4.0, my_radius);
+	float alpha_fade = do_fade ? smoothstep(3.0, 4.0, my_radius) : 1.0;
 
 	if (alpha_fade <= 0.001) {
 		return;
@@ -440,7 +441,8 @@ void FORWARD::preprocess(int P, int D, int M,
 	float4* conic_opacity,
 	const dim3 grid,
 	uint32_t* tiles_touched,
-	bool prefiltered)
+	bool prefiltered,
+	bool do_fade)
 {
 	preprocessCUDA<NUM_CHANNELS> << <(P + 255) / 256, 256 >> > (
 		P, D, M,
@@ -467,6 +469,7 @@ void FORWARD::preprocess(int P, int D, int M,
 		conic_opacity,
 		grid,
 		tiles_touched,
-		prefiltered
+		prefiltered,
+		do_fade
 		);
 }
