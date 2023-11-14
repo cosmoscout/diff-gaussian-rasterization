@@ -230,6 +230,9 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	float lambda1 = mid + sqrt(max(0.1f, mid * mid - det));
 	float lambda2 = mid - sqrt(max(0.1f, mid * mid - det));
 	float my_radius = 3.f * sqrt(max(lambda1, lambda2));
+
+	// This was added for CosmoScout VR: We smoothly fade out small splats
+	// in order to significantly increase the performance for views from outside.
 	float alpha_fade = smoothstep(3.0, 4.0, my_radius);
 
 	if (alpha_fade <= 0.001) {
@@ -237,7 +240,6 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	}
 	
 	my_radius = ceil(my_radius);
-
 
 	float2 point_image = { ndc2Pix(p_proj.x, W), ndc2Pix(p_proj.y, H) };
 	uint2 rect_min, rect_max;
